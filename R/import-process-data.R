@@ -1,3 +1,4 @@
+Sys.setlocale("LC_ALL", "Norwegian_Norway.utf8")
 
 library(readxl)
 library(purrr)
@@ -16,10 +17,75 @@ import_and_combine_sheets <- function(file_path, sheet_names) {
         dplyr::mutate(
           source_sheet = sheet,
           klokkeslett = hms::as_hms(format(klokkeslett, "%H:%M:%S")),
-          etappetid = hms::as_hms(format(etappetid, "%H:%M:%S"))
+          etappetid = hms::hms(
+            seconds = as.numeric(format(etappetid, "%M")),
+            minutes = as.numeric(format(etappetid, "%H")),
+            hours = 0L
+          )
         )
     })
 }
 
 # Import all sheets and combine them
-combined_data <- import_and_combine_sheets("data/raw-data.xlsx", sheet_vector)
+combined_data <- import_and_combine_sheets("data/raw-data.xlsx", sheet_vector) %>% 
+  mutate(plassering_totalt = as.numeric(plassering_totalt),
+         plassering_klasse = as.numeric(plassering_klasse),
+         deltakere_totalt = as.numeric(deltakere_totalt),
+         deltakere_klasse = as.numeric(deltakere_klasse))
+
+# Add custom variables
+glimpse(combined_data)
+combined_data <- combined_data %>% 
+  mutate(persentil_totalt = (plassering_totalt / deltakere_totalt)*100,
+         persentil_klasse = (plassering_klasse / deltakere_klasse)*100,
+         etappe_hastighet = str_remove_all(etappe_hastighet, " min/km"),
+         etappe_hastighet = hms::hms(seconds = period_to_seconds(ms(etappe_hastighet))),
+         etappe = factor(etappe, 
+                         levels = c('St. Hanshaugen-1',
+                                    'Norabakken-2',
+                                    'Blåsen-3',
+                                    'Berg og dal-4',
+                                    'Forskningsparken-5',
+                                    'Lille Besserud-6',
+                                    'Besserud-7',
+                                    'Utforetappen-8',
+                                    'Gressbanen-9',
+                                    'Den lange-10',
+                                    'Frognerparken-11',
+                                    'Dumpa-12',
+                                    'Trappa-13',
+                                    'Sjarmøren-14',
+                                    'Bislett Stadion-15')))
+
+library(tidyr)
+library(stringr)
+library(lubridate)
+
+data_long <- combined_data %>% 
+  mutate(etappe_hastighet = as.numeric(etappe_hastighet)) %>% 
+  select(-c(etappe_nr, etappe_deltaker, etappe_alternative,
+            deltakere_totalt,
+            deltakere_klasse,
+            source_sheet,
+            klokkeslett,
+            etappetid,
+            plassering_klasse,
+            plassering_totalt)) %>% 
+  pivot_longer(-c(etappe, team, klasse, year),
+               names_to = "metric_type")
+glimpse(data_long)
+
+library(ggplot2)
+data_long %>% 
+  ggplot(aes(x = etappe,
+             y = value,
+             color = team)) +
+  geom_point() +
+  # facet_wrap(year~metric_type,
+             # scales = "free",
+  #            ncol = 5) +¨'
+  facet_grid(year~metric_type) +
+  coord_flip() #+
+  # scale_color_viridis_c()
+
+
