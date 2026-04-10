@@ -1,121 +1,124 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useMemo } from 'react';
+import * as d3 from 'd3';
 import './App.css'
+import { data } from './data';
+
+const MARGIN = { top: 20, right: 30, bottom: 40, left: 100 };
+const JITTER_WIDTH = 20;
+const WIDTH = 600;
+const HEIGHT = 400;
+const boundsWidth = WIDTH - MARGIN.left - MARGIN.right;
+const boundsHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+
+const SELECTED_EMOTIONS = [
+  'Enjoyment',
+  'Wellrested',
+  'Learned',
+  'Worry',
+  'Anger',
+  'Sadness',
+];
+
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const points = useMemo(() => {
+    const rng = d3.randomLcg(42);
+    return data
+      .filter((d) => SELECTED_EMOTIONS.includes(d.Emotion))
+      .flatMap((d) =>
+        Object.entries(d.values).map(([country, value]) => ({
+          emotion: d.Emotion,
+          country,
+          value,
+          jitter: (rng() - 0.5) * JITTER_WIDTH,
+        }))
+      );
+  }, []);
+
+  const xScale = useMemo(
+    () => d3.scaleLinear().domain([0, 100]).range([0, boundsWidth]),
+    []
+  );
+
+  const yScale = useMemo(
+    () =>
+      d3
+        .scaleBand()
+        .domain(SELECTED_EMOTIONS)
+        .range([0, boundsHeight])
+        .padding(0.3),
+    []
+  );
+
+  const xTicks = xScale.ticks(5);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <svg width={WIDTH} height={HEIGHT}>
+      <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
+        {/* Grid lines */}
+        {xTicks.map((tick) => (
+          <line
+            key={tick}
+            x1={xScale(tick)}
+            x2={xScale(tick)}
+            y1={0}
+            y2={boundsHeight}
+            stroke="#e0e0e0"
+          />
+        ))}
 
-      <div className="ticks"></div>
+        {/* X axis */}
+        <g transform={`translate(0,${boundsHeight})`}>
+          <line x1={0} x2={boundsWidth} y1={0} y2={0} stroke="currentColor" />
+          {xTicks.map((tick) => (
+            <g key={tick} transform={`translate(${xScale(tick)},0)`}>
+              <line y2={6} stroke="currentColor" />
+              <text
+                y={20}
+                textAnchor="middle"
+                fontSize={12}
+                fill="currentColor"
+              >
+                {tick}%
+              </text>
+            </g>
+          ))}
+        </g>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* Y axis labels */}
+        {SELECTED_EMOTIONS.map((emotion) => (
+          <text
+            key={emotion}
+            x={-10}
+            y={yScale(emotion) + yScale.bandwidth() / 2}
+            textAnchor="end"
+            dominantBaseline="central"
+            fontSize={13}
+            fill="currentColor"
+          >
+            {emotion}
+          </text>
+        ))}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Data points */}
+        {points.map((d, i) => (
+          <circle
+            key={i}
+            cx={xScale(d.value)}
+            cy={
+              yScale(d.emotion) +
+              yScale.bandwidth() / 2 +
+              d.jitter
+            }
+            r={3}
+            fill="#69b3a2"
+            opacity={0.7}
+          />
+        ))}
+      </g>
+    </svg>
+  );
 }
 
 export default App
