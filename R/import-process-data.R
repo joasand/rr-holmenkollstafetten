@@ -62,7 +62,7 @@ library(stringr)
 library(lubridate)
 
 data_long <- combined_data %>% 
-  mutate(etappe_hastighet = as.numeric(etappe_hastighet)) %>% 
+  mutate(etappe_hastighet = as.numeric(etappe_hastighet)/60) %>% 
   select(-c(etappe_nr, etappe_deltaker, etappe_alternative,
             deltakere_totalt,
             deltakere_klasse,
@@ -84,8 +84,32 @@ data_long %>%
   # facet_wrap(year~metric_type,
              # scales = "free",
   #            ncol = 5) +¨'
-  facet_grid(year~metric_type) +
+  facet_grid(year~metric_type,
+             scales = "free") +
   coord_flip() #+
   # scale_color_viridis_c()
 
+data_long %>% 
+  ggplot(aes(x = etappe,
+             y = value)) +
+  geom_boxplot(outliers = FALSE) +
+  geom_jitter(width = 0.2) +
+  # facet_wrap(year~metric_type,
+             # scales = "free",
+  #            ncol = 5) +¨'
+  coord_flip() +
+  facet_wrap(~metric_type, scales = "free")
+  # scale_color_viridis_c()
+
+data_long %>% 
+  filter(metric_type == "persentil_klasse") %>% 
+  ggplot(aes(x = year,
+             y = value,
+             group = team,
+             color = team)) +
+  geom_point() +
+  geom_smooth(#method = "loess",
+              se = FALSE,
+              span = 5) +
+  facet_wrap(~etappe)
 
