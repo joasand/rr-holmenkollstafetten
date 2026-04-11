@@ -79,7 +79,7 @@ function App() {
         </div>
 
         <div style={{ position: 'relative' }}>
-          <svg width={WIDTH} height={chartHeight}>
+          <svg width={WIDTH} height={chartHeight} style={{ transition: 'height 0.4s ease' }}>
             <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
               {/* X axis top */}
               <g>
@@ -108,11 +108,12 @@ function App() {
                   width={boundsWidth}
                   height={yScale.bandwidth()}
                   fill="#f7f7f7"
+                  style={{ transition: 'y 0.4s ease, height 0.4s ease' }}
                 />
               ))}
 
               {/* X axis */}
-              <g transform={`translate(0,${boundsHeight})`}>
+              <g transform={`translate(0,${boundsHeight})`} style={{ transition: 'transform 0.4s ease' }}>
                 <AxisBottom
                   xScale={xScale}
                   pixelsPerTick={180}
@@ -140,6 +141,7 @@ function App() {
                   dominantBaseline="central"
                   fontSize={14}
                   fill="currentColor"
+                  style={{ transition: 'y 0.4s ease' }}
                 >
                   {etappe}
                 </text>
@@ -148,7 +150,7 @@ function App() {
               {/* Data points */}
               {points.map((d, i) => (
                 <circle
-                  key={i}
+                  key={`${d.year}-${d.team}-${d.y}-${d.deltaker}`}
                   cx={xScale(d.x)}
                   cy={yScale(d.y) + yScale.bandwidth() / 2 + d.jitter}
                   r={6}
@@ -157,7 +159,7 @@ function App() {
                   opacity={0.7}
                   onMouseEnter={() => setHovered(d)}
                   onMouseLeave={() => setHovered(null)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', transition: 'cy 0.4s ease' }}
                 />
               ))}
             </g>
