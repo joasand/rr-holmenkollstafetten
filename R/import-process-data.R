@@ -1,19 +1,26 @@
 Sys.setlocale("LC_ALL", "Norwegian_Norway.utf8")
 
+#### SET UP ####
+
 library(readxl)
 library(purrr)
 library(dplyr)
 library(hms)
+library(tidyr)
+library(stringr)
+library(lubridate)
 
 sheet_vector <- readxl::excel_sheets("data/raw-data.xlsx")
 
+#### DATA IMPORT ####
+
 # Function to import and combine all sheets
 import_and_combine_sheets <- function(file_path, sheet_names) {
-  sheet_names %>%
+  sheet_names |>
     purrr::map_dfr(function(sheet) {
       col_names <- names(readxl::read_excel(file_path, sheet = sheet, n_max = 0))
       col_types <- ifelse(col_names %in% c("klokkeslett", "etappetid"), "date", "text")
-      readxl::read_excel(file_path, sheet = sheet, col_types = col_types) %>%
+      readxl::read_excel(file_path, sheet = sheet, col_types = col_types) |>
         dplyr::mutate(
           source_sheet = sheet,
           klokkeslett = hms::as_hms(format(klokkeslett, "%H:%M:%S")),
@@ -27,15 +34,17 @@ import_and_combine_sheets <- function(file_path, sheet_names) {
 }
 
 # Import all sheets and combine them
-combined_data <- import_and_combine_sheets("data/raw-data.xlsx", sheet_vector) %>% 
+combined_data <- import_and_combine_sheets("data/raw-data.xlsx", sheet_vector) |> 
   mutate(plassering_totalt = as.numeric(plassering_totalt),
          plassering_klasse = as.numeric(plassering_klasse),
          deltakere_totalt = as.numeric(deltakere_totalt),
          deltakere_klasse = as.numeric(deltakere_klasse))
 
+#### WRANGLING ####
+
 # Add custom variables
 glimpse(combined_data)
-combined_data <- combined_data %>% 
+combined_data <- combined_data |> 
   mutate(persentil_totalt = (plassering_totalt / deltakere_totalt)*100,
          persentil_klasse = (plassering_klasse / deltakere_klasse)*100,
          etappe_hastighet = str_remove_all(etappe_hastighet, " min/km"),
@@ -57,12 +66,10 @@ combined_data <- combined_data %>%
                                     'Sjarmøren-14',
                                     'Bislett Stadion-15')))
 
-library(tidyr)
-library(stringr)
-library(lubridate)
+#### EXPLORATORY ANALYSIS ####
 
-data_long <- combined_data %>% 
-  mutate(etappe_hastighet = as.numeric(etappe_hastighet)/60) %>% 
+data_long <- combined_data |> 
+  mutate(etappe_hastighet = as.numeric(etappe_hastighet)/60) |> 
   select(-c(etappe_nr, etappe_deltaker, etappe_alternative,
             deltakere_totalt,
             deltakere_klasse,
@@ -70,13 +77,14 @@ data_long <- combined_data %>%
             klokkeslett,
             etappetid,
             plassering_klasse,
-            plassering_totalt)) %>% 
+            plassering_totalt)) |> 
   pivot_longer(-c(etappe, team, klasse, year),
                names_to = "metric_type")
+
 glimpse(data_long)
 
 library(ggplot2)
-data_long %>% 
+data_long |> 
   ggplot(aes(x = etappe,
              y = value,
              color = team)) +
@@ -89,7 +97,7 @@ data_long %>%
   coord_flip() #+
   # scale_color_viridis_c()
 
-data_long %>% 
+data_long |> 
   ggplot(aes(x = etappe,
              y = value)) +
   geom_boxplot(outliers = FALSE) +
@@ -101,8 +109,8 @@ data_long %>%
   facet_wrap(~metric_type, scales = "free")
   # scale_color_viridis_c()
 
-data_long %>% 
-  filter(metric_type == "persentil_klasse") %>% 
+data_long |> 
+  filter(metric_type == "persentil_klasse") |> 
   ggplot(aes(x = year,
              y = value,
              group = team,
@@ -112,4 +120,26 @@ data_long %>%
               se = FALSE,
               span = 5) +
   facet_wrap(~etappe)
+
+#### EXAMPLE DATA FOR APP ####
+
+glimpse(combined_data)
+
+library(jsonlite)
+
+combined_data |> 
+  select(etappe_nr, 
+         etappe,
+         etappe_deltaker,
+         etappetid,
+         etappe_hastighet,
+         year, 
+         persentil_totalt, 
+         persentil_klasse) |> 
+  mutate(etappe = str_remove_all(etappe, "-"),
+         etappe = str_remove_all(etappe, "\\d"),
+         etappe = str_squish(etappe)
+         ) |> 
+  write_json("src/dev-data.json")
+
 
