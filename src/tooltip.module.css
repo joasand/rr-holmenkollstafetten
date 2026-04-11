@@ -1,0 +1,36 @@
+.tooltip {
+    width: 210px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 3px 3px 6px rgb(0 0 0 / 12%);
+    font-size: 12px;
+    padding: 10px;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+.title {
+    font-size: 17px;
+}
+
+.topHalfContainer {
+    border-left: solid 4px;
+    padding-left: 8px;
+    padding-top: 0px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+.separator {
+    width: 100%;
+    background-color: #c9c7c7;
+    height: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
