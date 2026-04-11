@@ -17,8 +17,8 @@ export function FilterGroup({ title, options, selected, onToggle, onSelectAll, o
         <div className="filter-group-options">
           {onSelectAll && (
             <div className="filter-group-actions">
-              <button type="button" onClick={onSelectAll}>Velg alle</button>
-              <button type="button" onClick={onClearAll}>Fjern alle</button>
+              <button id="filter-button" type="button" onClick={onSelectAll}>Velg alle</button>
+              <button id="filter-button" type="button" onClick={onClearAll}>Fjern alle</button>
             </div>
           )}
           {options.map((opt) => (

@@ -193,6 +193,10 @@
   font-size: 15px;
 }
 
+#filter-button {
+  background: white;
+}
+
 .app-layout {
   display: flex;
   gap: 20px;
