@@ -5,7 +5,7 @@ import { FilterGroup } from './FilterGroup';
 const yVar = 'etappe';
 const sortVar = 'etappe_nr';
 
-export function Sidebar({ filters, onFiltersChange }) {
+export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll }) {
   return (
     <aside className="sidebar">
       <h2>Filter</h2>
@@ -16,6 +16,8 @@ export function Sidebar({ filters, onFiltersChange }) {
           options={options}
           selected={selected}
           onToggle={(v) => onFiltersChange(key, v)}
+          onSelectAll={key === 'etappe' ? () => onSelectAll('etappe') : undefined}
+          onClearAll={key === 'etappe' ? () => onClearAll('etappe') : undefined}
         />
       ))}
     </aside>
@@ -48,6 +50,14 @@ export function useFilters() {
     });
   };
 
+  const handleSelectAll = (key) => {
+    setters[key](() => new Set(filterOptions[key]));
+  };
+
+  const handleClearAll = (key) => {
+    setters[key](() => new Set());
+  };
+
   const filters = [
     { key: 'year', title: 'År', options: filterOptions.year, selected: selectedYears },
     { key: 'team', title: 'Lag', options: filterOptions.team, selected: selectedTeams },
@@ -68,5 +78,5 @@ export function useFilters() {
     [filterOptions.etappe, selectedEtapper]
   );
 
-  return { filters, handleToggle, filterData, activeEtapper, selectedYears, selectedTeams, selectedEtapper, selectedLoperKjent };
+  return { filters, handleToggle, handleSelectAll, handleClearAll, filterData, activeEtapper, selectedYears, selectedTeams, selectedEtapper, selectedLoperKjent };
 }

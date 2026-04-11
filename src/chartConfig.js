@@ -1,9 +1,8 @@
 export const MARGIN = { top: 100, right: 50, bottom: 70, left: 180 };
 export const JITTER_WIDTH = 25;
 export const WIDTH = 1100;
-export const HEIGHT = 1100;
+export const BAND_HEIGHT = 70;
 export const boundsWidth = WIDTH - MARGIN.left - MARGIN.right;
-export const boundsHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
 
 export const parseTime = (t) => {
   const parts = t.split(':').map(Number);

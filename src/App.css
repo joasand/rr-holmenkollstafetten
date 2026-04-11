@@ -252,6 +252,25 @@
   margin-top: 4px;
 }
 
+.filter-group-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.filter-group-actions button {
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+.filter-group-actions button:hover {
+  background: #e0e0e0;
+}
+
 .filter-group h4 {
   margin: 0 0 6px;
   font-size: 14px;

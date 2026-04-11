@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export function FilterGroup({ title, options, selected, onToggle }) {
+export function FilterGroup({ title, options, selected, onToggle, onSelectAll, onClearAll }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -15,6 +15,12 @@ export function FilterGroup({ title, options, selected, onToggle }) {
       </button>
       {open && (
         <div className="filter-group-options">
+          {onSelectAll && (
+            <div className="filter-group-actions">
+              <button type="button" onClick={onSelectAll}>Velg alle</button>
+              <button type="button" onClick={onClearAll}>Fjern alle</button>
+            </div>
+          )}
           {options.map((opt) => (
             <label key={opt} className="filter-option">
               <input

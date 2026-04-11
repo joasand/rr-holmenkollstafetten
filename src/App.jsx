@@ -6,7 +6,7 @@ import { AxisBottom } from './AxisBottom';
 import { AxisTop } from './AxisTop';
 import { Sidebar, useFilters } from './Sidebar';
 import { Tooltip } from './Tooltip';
-import { MARGIN, JITTER_WIDTH, WIDTH, HEIGHT, boundsWidth, boundsHeight, X_VARIABLES } from './chartConfig';
+import { MARGIN, JITTER_WIDTH, WIDTH, BAND_HEIGHT, boundsWidth, X_VARIABLES } from './chartConfig';
 
 const yVar = 'etappe';
 
@@ -14,7 +14,7 @@ function App() {
   const [xVar, setXVar] = useState('persentil_totalt');
   const varConfig = X_VARIABLES[xVar];
 
-  const { filters, handleToggle, filterData, activeEtapper,
+  const { filters, handleToggle, handleSelectAll, handleClearAll, filterData, activeEtapper,
     selectedYears, selectedTeams, selectedEtapper, selectedLoperKjent } = useFilters();
 
   const points = useMemo(() => {
@@ -47,6 +47,9 @@ function App() {
     return [extent[0] - padding, extent[1] + padding];
   }, [varConfig, points]);
 
+  const boundsHeight = activeEtapper.length * BAND_HEIGHT;
+  const chartHeight = boundsHeight + MARGIN.top + MARGIN.bottom;
+
   const xScale = useMemo(
     () => d3.scaleLinear().domain(xDomain).range([0, boundsWidth]).nice(),
     [xDomain]
@@ -54,12 +57,12 @@ function App() {
 
   const yScale = useMemo(
     () => d3.scaleBand().domain(activeEtapper).range([0, boundsHeight]).padding(0.3),
-    [activeEtapper]
+    [activeEtapper, boundsHeight]
   );
 
   return (
     <div className="app-layout">
-      <Sidebar filters={filters} onFiltersChange={handleToggle} />
+      <Sidebar filters={filters} onFiltersChange={handleToggle} onSelectAll={handleSelectAll} onClearAll={handleClearAll} />
 
       <div>
         <text style={{ alignContent: "left" }}>
@@ -76,7 +79,7 @@ function App() {
         </div>
 
         <div style={{ position: 'relative' }}>
-          <svg width={WIDTH} height={HEIGHT}>
+          <svg width={WIDTH} height={chartHeight}>
             <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
               {/* X axis top */}
               <g>
