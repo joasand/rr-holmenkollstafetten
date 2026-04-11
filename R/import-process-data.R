@@ -9,6 +9,8 @@ library(hms)
 library(tidyr)
 library(stringr)
 library(lubridate)
+library(jsonlite)
+
 
 sheet_vector <- readxl::excel_sheets("data/raw-data.xlsx")
 
@@ -121,24 +123,29 @@ data_long |>
               span = 5) +
   facet_wrap(~etappe)
 
-#### EXAMPLE DATA FOR APP ####
+#### EXPORTING DATA FOR APP ####
 
 glimpse(combined_data)
-
-library(jsonlite)
 
 combined_data |> 
   select(etappe_nr, 
          etappe,
          etappe_deltaker,
+         year, 
+         team,
          etappetid,
          etappe_hastighet,
-         year, 
          persentil_totalt, 
-         persentil_klasse) |> 
+         persentil_klasse,
+         plassering_totalt,
+         plassering_klasse,
+         deltakere_totalt, 
+         deltakere_klasse) |> 
   mutate(etappe = str_remove_all(etappe, "-"),
          etappe = str_remove_all(etappe, "\\d"),
-         etappe = str_squish(etappe)
+         etappe = str_squish(etappe),
+         etappe = paste0("(", etappe_nr, ") ", etappe),
+         loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja")
          ) |> 
   write_json("src/dev-data.json")
 

@@ -3,149 +3,167 @@ import * as d3 from 'd3';
 import './App.css'
 import { RaceData } from './data-import';
 import { AxisBottom } from './AxisBottom';
-import styles from './tooltip.module.css';
+import { AxisTop } from './AxisTop';
+import { Sidebar, useFilters } from './Sidebar';
+import { Tooltip } from './Tooltip';
+import { MARGIN, JITTER_WIDTH, WIDTH, HEIGHT, boundsWidth, boundsHeight, X_VARIABLES } from './chartConfig';
 
-const MARGIN = { top: 20, right: 30, bottom: 70, left: 150 };
-const JITTER_WIDTH = 30;
-const WIDTH = 1100;
-const HEIGHT = 900;
-const boundsWidth = WIDTH - MARGIN.left - MARGIN.right;
-const boundsHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
-
-const xVar = 'persentil_totalt';
 const yVar = 'etappe';
-const sortVar = 'etappe_nr';
 
 function App() {
+  const [xVar, setXVar] = useState('persentil_totalt');
+  const varConfig = X_VARIABLES[xVar];
 
-  const etapper = useMemo(() => {
-    return [...new Map(RaceData.map(d => [d[yVar], d[sortVar]])).entries()]
-      .sort((a, b) => Number(a[1]) - Number(b[1]))
-      .map(([name]) => name);
-  }, []);
+  const { filters, handleToggle, filterData, activeEtapper,
+    selectedYears, selectedTeams, selectedEtapper, selectedLoperKjent } = useFilters();
 
   const points = useMemo(() => {
     const rng = d3.randomLcg(42);
-    return RaceData.map((d) => ({
-      x: d[xVar],
+    return filterData(RaceData).map((d) => ({
+      x: varConfig.getValue(d),
       y: d[yVar],
       year: d.year,
+      team: d.team,
       deltaker: d.etappe_deltaker,
       etappetid: d.etappetid,
       etappe_hastighet: d.etappe_hastighet,
       persentil_totalt: d.persentil_totalt,
       persentil_klasse: d.persentil_klasse,
+      plassering_totalt: d.plassering_totalt,
+      plassering_klasse: d.plassering_klasse,
+      deltakere_totalt: d.deltakere_totalt,
+      deltakere_klasse: d.deltakere_klasse,
+      loper_kjent: d.loper_kjent,
       jitter: (rng() - 0.5) * JITTER_WIDTH,
     }));
-  }, []);
+  }, [varConfig, filterData]);
 
   const [hovered, setHovered] = useState(null);
 
+  const xDomain = useMemo(() => {
+    if (varConfig.domain !== 'auto') return varConfig.domain;
+    const extent = d3.extent(points, (d) => d.x);
+    const padding = (extent[1] - extent[0]) * 0.05;
+    return [extent[0] - padding, extent[1] + padding];
+  }, [varConfig, points]);
+
   const xScale = useMemo(
-    () => d3.scaleLinear().domain([0, 100]).range([0, boundsWidth]),
-    []
+    () => d3.scaleLinear().domain(xDomain).range([0, boundsWidth]).nice(),
+    [xDomain]
   );
 
   const yScale = useMemo(
-    () =>
-      d3
-        .scaleBand()
-        .domain(etapper)
-        .range([0, boundsHeight])
-        .padding(0.3),
-    [etapper]
+    () => d3.scaleBand().domain(activeEtapper).range([0, boundsHeight]).padding(0.3),
+    [activeEtapper]
   );
 
   return (
-    <svg width={WIDTH} height={HEIGHT}>
-      <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
+    <div className="app-layout">
+      <Sidebar filters={filters} onFiltersChange={handleToggle} />
 
-        {/* Band backgrounds */}
-        {etapper.map((etappe) => (
-          <rect
-            key={`bg-${etappe}`}
-            x={0}
-            y={yScale(etappe)}
-            width={boundsWidth}
-            height={yScale.bandwidth()}
-            fill="#f7f7f7"
-          />
-        ))}
+      <div>
+        <text style={{ alignContent: "left" }}>
+          <h1>Hvor fort har Riksrevisjonen løpt i Holmenkollstafetten siden 2017?</h1>
+        </text>
 
-        {/* X axis */}
-        <g transform={`translate(0,${boundsHeight})`}>
-          <AxisBottom
-            xScale={xScale}
-            pixelsPerTick={180}
-            tickFormat={(v) => `${v}%`}
-            label="Test"
-            boundsHeight={boundsHeight}
-          />
+        <div style={{ marginBottom: 10, textAlign: 'center' }}>
+          <label htmlFor="xvar-select" style={{ marginRight: 8 }}>Hva vil du sammenligne? </label>
+          <select id="xvar-select" value={xVar} onChange={(e) => setXVar(e.target.value)}>
+            {Object.entries(X_VARIABLES).map(([key, cfg]) => (
+              <option key={key} value={key}>{cfg.label}</option>
+            ))}
+          </select>
+        </div>
 
-          {/* Annotations */}
-          <g transform="translate(0,60)">
-            <text x={0} textAnchor="start" fontSize={13} fill="#666">
-              ← Raskere løp
-            </text>
-            <text x={boundsWidth} textAnchor="end" fontSize={13} fill="#666">
-              Tregere løp →
-            </text>
-          </g>
-        </g>
+        <div style={{ position: 'relative' }}>
+          <svg width={WIDTH} height={HEIGHT}>
+            <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
+              {/* X axis top */}
+              <g>
+                <AxisTop
+                  xScale={xScale}
+                  pixelsPerTick={180}
+                  tickFormat={varConfig.tickFormat}
+                  label={varConfig.label}
+                />
+                <g transform="translate(0,-60)">
+                  <text x={0} textAnchor="start" fontSize={16} fill="#666">
+                    ← Raskere løp
+                  </text>
+                  <text x={boundsWidth} textAnchor="end" fontSize={16} fill="#666">
+                    Tregere løp →
+                  </text>
+                </g>
+              </g>
 
-        {/* Y axis labels */}
-        {etapper.map((etappe) => (
-          <text
-            key={etappe}
-            x={-10}
-            y={yScale(etappe) + yScale.bandwidth() / 2}
-            textAnchor="end"
-            dominantBaseline="central"
-            fontSize={13}
-            fill="currentColor"
-          >
-            {etappe}
-          </text>
-        ))}
+              {/* Band backgrounds */}
+              {activeEtapper.map((etappe) => (
+                <rect
+                  key={`bg-${etappe}`}
+                  x={0}
+                  y={yScale(etappe)}
+                  width={boundsWidth}
+                  height={yScale.bandwidth()}
+                  fill="#f7f7f7"
+                />
+              ))}
 
-        {/* Data points */}
-        {points.map((d, i) => (
-          <circle
-            key={i}
-            cx={xScale(d.x)}
-            cy={yScale(d.y) + yScale.bandwidth() / 2 + d.jitter}
-            r={6}
-            stroke='#40665d'
-            fill="#69b3a2"
-            opacity={0.7}
-            onMouseEnter={() => setHovered(d)}
-            onMouseLeave={() => setHovered(null)}
-            style={{ cursor: 'pointer' }}
-          />
-        ))}
-      </g>
+              {/* X axis */}
+              <g transform={`translate(0,${boundsHeight})`}>
+                <AxisBottom
+                  xScale={xScale}
+                  pixelsPerTick={180}
+                  tickFormat={varConfig.tickFormat}
+                  label={varConfig.label}
+                  boundsHeight={boundsHeight}
+                />
+                <g transform="translate(0,60)">
+                  <text x={0} textAnchor="start" fontSize={16} fill="#666">
+                    ← Raskere løp
+                  </text>
+                  <text x={boundsWidth} textAnchor="end" fontSize={16} fill="#666">
+                    Tregere løp →
+                  </text>
+                </g>
+              </g>
 
-      {/* Tooltip */}
-      {hovered && (
-        <foreignObject
-          x={xScale(hovered.x) + MARGIN.left + 10}
-          y={yScale(hovered.y) + yScale.bandwidth() / 2 + hovered.jitter + MARGIN.top}
-          width={220}
-          height={200}
-          style={{ overflow: 'visible' }}
-        >
-          <div className={styles.tooltip}>
-            <div className={styles.title}>{hovered.deltaker}</div>
-            <div className={styles.separator} />
-            <div className={styles.row}><span>År</span><span>{hovered.year}</span></div>
-            <div className={styles.row}><span>Etappetid</span><span>{hovered.etappetid}</span></div>
-            <div className={styles.row}><span>Hastighet</span><span>{hovered.etappe_hastighet}</span></div>
-            <div className={styles.row}><span>Persentil (totalt)</span><span>{hovered.persentil_totalt.toFixed(1)} %</span></div>
-            <div className={styles.row}><span>Persentil (klasse)</span><span>{hovered.persentil_klasse.toFixed(1)} %</span></div>
-          </div>
-        </foreignObject>
-      )}
-    </svg>
+              {/* Y axis labels */}
+              {activeEtapper.map((etappe) => (
+                <text
+                  key={etappe}
+                  x={-10}
+                  y={yScale(etappe) + yScale.bandwidth() / 2}
+                  textAnchor="end"
+                  dominantBaseline="central"
+                  fontSize={14}
+                  fill="currentColor"
+                >
+                  {etappe}
+                </text>
+              ))}
+
+              {/* Data points */}
+              {points.map((d, i) => (
+                <circle
+                  key={i}
+                  cx={xScale(d.x)}
+                  cy={yScale(d.y) + yScale.bandwidth() / 2 + d.jitter}
+                  r={6}
+                  stroke='#40665d'
+                  fill="#69b3a2"
+                  opacity={0.7}
+                  onMouseEnter={() => setHovered(d)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{ cursor: 'pointer' }}
+                />
+              ))}
+            </g>
+          </svg>
+
+          <Tooltip hovered={hovered} xScale={xScale} yScale={yScale} MARGIN={MARGIN} />
+        </div>
+      </div>
+    </div>
   );
 }
 
