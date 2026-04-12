@@ -4,7 +4,7 @@ import './App.css'
 import { RaceData } from './data-import';
 import { AxisBottom } from './AxisBottom';
 import { AxisTop } from './AxisTop';
-import { Sidebar, useFilters } from './Sidebar';
+import { Sidebar, useFilters, useHighlights } from './Sidebar';
 import { Tooltip } from './Tooltip';
 import { MARGIN, JITTER_WIDTH, WIDTH, BAND_HEIGHT, boundsWidth, X_VARIABLES } from './chartConfig';
 
@@ -16,6 +16,8 @@ function App() {
 
   const { filters, handleToggle, handleSelectAll, handleClearAll, filterData, activeEtapper,
     selectedYears, selectedTeams, selectedEtapper, selectedLoperKjent } = useFilters();
+
+  const { highlights, handleHighlightToggle, deltaker, handleDeltakerToggle, isHighlighted } = useHighlights();
 
   const points = useMemo(() => {
     const rng = d3.randomLcg(42);
@@ -79,7 +81,9 @@ function App() {
 
   return (
     <div className="app-layout">
-      <Sidebar filters={filters} onFiltersChange={handleToggle} onSelectAll={handleSelectAll} onClearAll={handleClearAll} filteredCount={visiblePoints.length} totalCount={RaceData.length} />
+      <Sidebar filters={filters} onFiltersChange={handleToggle} onSelectAll={handleSelectAll} onClearAll={handleClearAll} filteredCount={visiblePoints.length} totalCount={RaceData.length}
+        highlights={highlights} onHighlightToggle={handleHighlightToggle}
+        deltaker={deltaker} onDeltakerToggle={handleDeltakerToggle} />
 
       <div>
         <text style={{ alignContent: "left" }}>
@@ -206,20 +210,22 @@ function App() {
 
               {/* Data points */}
               <g clipPath="url(#chart-clip)">
-              {visiblePoints.map((d, i) => (
+              {[...visiblePoints].sort((a, b) => isHighlighted(a) - isHighlighted(b)).map((d, i) => {
+                const hl = isHighlighted(d);
+                return (
                 <circle
                   key={`${d.year}-${d.team}-${d.y}-${d.deltaker}`}
                   cx={xScale(d.x)}
                   cy={yScale(d.y) + yScale.bandwidth() / 2 + d.jitter}
                   r={9}
-                  stroke='#A40000'
-                  fill="#a400006b"
-                  opacity={1}
+                  stroke={hl ? '#A40000' : '#cccccc'}
+                  fill={hl ? '#a400006b' : '#cccccc'}
+                  opacity={hl ? 1 : 0.5}
                   onMouseEnter={() => setHovered(d)}
                   onMouseLeave={() => setHovered(null)}
-                  style={{ cursor: 'pointer', transition: 'cy 0.4s ease' }}
+                  style={{ cursor: 'pointer', transition: 'cy 0.4s ease, fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease' }}
                 />
-              ))}
+              )})}
               </g>
             </g>
           </svg>

@@ -220,7 +220,7 @@
 
 .range-slider-track {
   position: relative;
-  width: 300px;
+  width: 400px;
   height: 30px;
 }
 
@@ -240,8 +240,8 @@
 .range-slider-track input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   pointer-events: auto;
-  height: 18px;
-  width: 18px;
+  height: 22px;
+  width: 22px;
   border-radius: 50%;
   background: #A40000;
   border: 2px solid #fff;
@@ -249,12 +249,13 @@
   cursor: pointer;
   position: relative;
   z-index: 2;
+  margin-top: -9px;
 }
 
 .range-slider-track input[type="range"]::-moz-range-thumb {
   pointer-events: auto;
-  height: 18px;
-  width: 18px;
+  height: 22px;
+  width: 22px;
   border-radius: 50%;
   background: #A40000;
   border: 2px solid #fff;
@@ -298,7 +299,7 @@
 } */
 
 .sidebar {
-    width: 200px;
+    width: 240px;
     flex-shrink: 0;
     padding: 16px;
     overflow-y: overlay;
@@ -392,5 +393,53 @@
 
 .filter-option input[type="checkbox"] {
   cursor: pointer;
+}
+
+.deltaker-search-input {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.deltaker-selected {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #eee;
+}
+
+.deltaker-selected-label {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.deltaker-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin: 2px 4px 2px 0;
+}
+
+.deltaker-tag button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #999;
+  padding: 0;
+  line-height: 1;
+}
+
+.deltaker-tag button:hover {
+  color: #333;
 }
 
