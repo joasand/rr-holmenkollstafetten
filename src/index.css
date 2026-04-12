@@ -1,3 +1,5 @@
+@import url('https://api.fontshare.com/v2/css?f[]=nunito@400&f[]=bebas-neue@400&display=swap');
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -11,8 +13,10 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif; */
+  --heading: 'Bebas Neue', sans-serif;
+  --sans: 'Nunito', sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -54,7 +58,7 @@ h2 {
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 66px;
   letter-spacing: -1.68px;
   margin: 32px 0;
   @media (max-width: 1024px) {
