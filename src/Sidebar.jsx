@@ -57,7 +57,7 @@ export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll, fil
   highlights, onHighlightToggle, deltaker, onDeltakerToggle }) {
   return (
     <aside className="sidebar">
-      <h2>Filter</h2>
+      <h2>Filtrering</h2>
       <p className="filter-count">Viser {filteredCount} av {totalCount} løpstider</p>
       {filters.map(({ key, title, options, selected }) => (
         <FilterGroup
@@ -71,7 +71,7 @@ export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll, fil
         />
       ))}
 
-      <h2 style={{ marginTop: 20 }}>Fremhev</h2>
+      <h2 style={{ marginTop: 20 }}>Fremheving</h2>
       {highlights.map(({ key, title, options, selected }) => (
         <FilterGroup
           key={key}

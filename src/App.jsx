@@ -134,24 +134,37 @@ function App() {
         deltaker={deltaker} onDeltakerToggle={handleDeltakerToggle} />
 
       <div>
-        <text style={{ alignContent: "left" }}>
+        <text style={{ alignContent: "left", maxWidth: 800, display: 'block', margin: '0 auto' }}>
           <h1>Hvem er raskest i Riksrevisjonen?</h1>
           Denne siden inneholder Riksrevisjonens resultater fra Holmenkollstafetten fra 2017 til 2025. 
-          Du kan velge mellom 
+          Hver prikk i diagrammet under representerer en etappetid for en deltaker. 
+          Hver rad representerer en etappe, og du kan se hvordan tidene har utviklet seg over årene.
           <br></br>
+          <br></br>
+          Du kan velge mellom ulike måter å måle "raskest" på, for eksempel etappetid, hastighet, eller persentilplassering.
+          du kan bruke filtrene i menyen til venstre for å utforske dataene. Du kan også holde musepekeren over en prikk for å se detaljer om den deltakeren og etappen.
+          <br></br>
+          <br></br>
+          Obs: Foreløpig er det bare lagt inn navn for 2025. Vi jobber med å få inn navn for tidligere år også. 
+          Hvis du har informasjon om hvem som løp hvilke etapper i tidligere år, ta gjerne kontakt!
         </text>
 
-        <div style={{ marginBottom: 10, textAlign: 'center' , marginTop: 30}}>
-          <label htmlFor="xvar-select" style={{ marginRight: 8 }}>Hva vil du sammenligne? </label>
-          <select id="xvar-select" value={xVar} onChange={(e) => setXVar(e.target.value)}>
-            {Object.entries(X_VARIABLES).map(([key, cfg]) => (
-              <option key={key} value={key}>{cfg.label}</option>
-            ))}
-          </select>
+        <div className="xvar-cards">
+          {Object.entries(X_VARIABLES).map(([key, cfg]) => (
+            <button
+              key={key}
+              className={`xvar-card${xVar === key ? ' xvar-card-selected' : ''}`}
+              onClick={() => setXVar(key)}
+            >
+              <span className="xvar-card-title">{cfg.label}</span>
+              <span className="xvar-card-desc">{cfg.explanation}</span>
+            </button>
+          ))}
         </div>
 
         <div className="range-slider-wrapper">
-          <label className="range-slider-label">Endre ytterverdier:</label>
+                    <br></br>
+          <label className="range-slider-label">Her kan du endre minimums- og maksimumsverdien for X-aksen:</label>
           <div className="range-slider-container">
             <span className="range-slider-value">{varConfig.tickFormat(xRange ? xRange[0] : dataExtent[0])}</span>
             <div className="range-slider-track">
