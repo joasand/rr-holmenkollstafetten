@@ -14,7 +14,7 @@ const yVar = 'etappe';
 const relayInfo = new Map(RelayData.map(d => [d.etappe, d]));
 
 function App() {
-  const [xVar, setXVar] = useState('persentil_totalt');
+  const [xVar, setXVar] = useState('etappetid');
   const varConfig = X_VARIABLES[xVar];
 
   const { filters, handleToggle, handleSelectAll, handleClearAll, filterData, activeEtapper,
@@ -93,6 +93,7 @@ function App() {
   const dodgeOffsets = useMemo(() => {
     const offsets = new Map();
     const diameter = DOT_RADIUS * 2;
+    const maxOffset = yScale.bandwidth() / 2 - DOT_RADIUS;
     // Group visible points by band
     const groups = new Map();
     visiblePoints.forEach(d => {
@@ -118,6 +119,8 @@ function App() {
           // Alternate: +1, -1, +2, -2, ...
           offset = Math.ceil(step / 2) * diameter * (step % 2 === 1 ? -1 : 1);
           step++;
+          // Stop if we've exceeded band limits
+          if (Math.abs(offset) > maxOffset) { offset = Math.sign(offset) * maxOffset; break; }
         }
         placed.push({ px, offset });
         const key = `${d.year}-${d.team}-${d.y}-${d.deltaker}`;
@@ -125,7 +128,7 @@ function App() {
       });
     });
     return offsets;
-  }, [visiblePoints, xScale]);
+  }, [visiblePoints, xScale, yScale]);
 
   return (
     <div className="app-layout">
@@ -286,6 +289,8 @@ function App() {
                 );
               })}
 
+              {/* Data points */}
+              <g clipPath="url(#chart-clip)">
               {/* Etappe record markers (only for etappetid) */}
               {xVar === 'etappetid' && activeEtapper.map((etappe) => {
                 const info = relayInfo.get(etappe);
@@ -309,8 +314,6 @@ function App() {
                 );
               })}
 
-              {/* Data points */}
-              <g clipPath="url(#chart-clip)">
               {[...visiblePoints].sort((a, b) => isHighlighted(a) - isHighlighted(b)).map((d, i) => {
                 const hl = isHighlighted(d);
                 const key = `${d.year}-${d.team}-${d.y}-${d.deltaker}`;

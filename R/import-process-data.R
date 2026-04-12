@@ -159,7 +159,8 @@ combined_data |>
          etappe = str_remove_all(etappe, "\\d"),
          etappe = str_squish(etappe),
          etappe = paste0("(", etappe_nr, ") ", etappe),
-         loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja")) |> 
+         loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja"),
+         team = if_else(team == "Lag 1", "Førstelaget", "Andrelaget")) |> 
   group_by(etappe) |> 
   mutate(plassering_rr = rank(etappe_hastighet,
                               ties.method = "random")) |> 

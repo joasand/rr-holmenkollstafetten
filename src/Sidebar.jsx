@@ -58,6 +58,7 @@ export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll, fil
   return (
     <aside className="sidebar">
       <h2>Filtrering</h2>
+      <p className="filter-description">Velg hvilke data som skal vises i diagrammet.</p>
       <p className="filter-count">Viser {filteredCount} av {totalCount} løpstider</p>
       {filters.map(({ key, title, options, selected }) => (
         <FilterGroup
@@ -72,6 +73,7 @@ export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll, fil
       ))}
 
       <h2 style={{ marginTop: 20 }}>Fremheving</h2>
+      <p className="filter-description">Fremhev bestemte grupper eller løpere i diagrammet.</p>
       {highlights.map(({ key, title, options, selected }) => (
         <FilterGroup
           key={key}

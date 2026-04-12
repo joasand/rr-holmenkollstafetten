@@ -342,12 +342,19 @@
     /* overflow-y: overlay; */
     max-height: 100vh;
     position: relative;
-    top: 695px;
+    top: 720px;
 }
 
 .sidebar h3 {
   margin: 0 0 12px;
   font-size: 18px;
+}
+
+.filter-description {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 8px;
+  line-height: 1.4;
 }
 
 .filter-count {
