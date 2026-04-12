@@ -123,6 +123,22 @@ data_long |>
               span = 5) +
   facet_wrap(~etappe)
 
+#### RELAY DATA ####
+
+etappe_data <- read_xlsx("data/etappe-details-data.xlsx")
+
+glimpse(etappe_data)
+
+etappe_data <- etappe_data |> 
+  select(etappe_nr, etappe, distanse_meter, etappe_profil, etappe_rekord) |> 
+  mutate(etappe_rekord = hms::as_hms(format(etappe_rekord, "%H:%M:%S")),
+         etappe = str_remove_all(etappe, "-"),
+         etappe = str_remove_all(etappe, "\\d"),
+         etappe = str_squish(etappe),
+         etappe = paste0("(", etappe_nr, ") ", etappe)) |> 
+  write_json("src/relay-data.json")
+
+
 #### EXPORTING DATA FOR APP ####
 
 glimpse(combined_data)
@@ -145,7 +161,8 @@ combined_data |>
          etappe = str_remove_all(etappe, "\\d"),
          etappe = str_squish(etappe),
          etappe = paste0("(", etappe_nr, ") ", etappe),
-         loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja")
+         loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja"),
+          
          ) |> 
   write_json("src/dev-data.json")
 

@@ -66,8 +66,8 @@ export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll, fil
           options={options}
           selected={selected}
           onToggle={(v) => onFiltersChange(key, v)}
-          onSelectAll={key === 'etappe' ? () => onSelectAll('etappe') : undefined}
-          onClearAll={key === 'etappe' ? () => onClearAll('etappe') : undefined}
+          onSelectAll={(key === 'etappe' || key === 'year') ? () => onSelectAll(key) : undefined}
+          onClearAll={(key === 'etappe' || key === 'year') ? () => onClearAll(key) : undefined}
         />
       ))}
 

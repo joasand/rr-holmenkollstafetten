@@ -6,7 +6,7 @@ import { AxisBottom } from './AxisBottom';
 import { AxisTop } from './AxisTop';
 import { Sidebar, useFilters, useHighlights } from './Sidebar';
 import { Tooltip } from './Tooltip';
-import { MARGIN, JITTER_WIDTH, WIDTH, BAND_HEIGHT, boundsWidth, X_VARIABLES } from './chartConfig';
+import { MARGIN, WIDTH, BAND_HEIGHT, boundsWidth, X_VARIABLES } from './chartConfig';
 
 const yVar = 'etappe';
 
@@ -20,7 +20,6 @@ function App() {
   const { highlights, handleHighlightToggle, deltaker, handleDeltakerToggle, isHighlighted } = useHighlights();
 
   const points = useMemo(() => {
-    const rng = d3.randomLcg(42);
     return filterData(RaceData).map((d) => ({
       x: varConfig.getValue(d),
       y: d[yVar],
@@ -36,7 +35,6 @@ function App() {
       deltakere_totalt: d.deltakere_totalt,
       deltakere_klasse: d.deltakere_klasse,
       loper_kjent: d.loper_kjent,
-      jitter: (rng() - 0.5) * JITTER_WIDTH,
     }));
   }, [varConfig, filterData]);
 
@@ -79,6 +77,45 @@ function App() {
     [activeEtapper, boundsHeight]
   );
 
+  // Beeswarm dodge: compute y-offsets so dots don't overlap
+  const DOT_RADIUS = 4;
+  const dodgeOffsets = useMemo(() => {
+    const offsets = new Map();
+    const diameter = DOT_RADIUS * 2;
+    // Group visible points by band
+    const groups = new Map();
+    visiblePoints.forEach(d => {
+      if (!groups.has(d.y)) groups.set(d.y, []);
+      groups.get(d.y).push(d);
+    });
+    groups.forEach((band) => {
+      // Sort by x pixel position for efficient collision detection
+      band.sort((a, b) => xScale(a.x) - xScale(b.x));
+      const placed = []; // {px, offset}
+      band.forEach(d => {
+        const px = xScale(d.x);
+        let offset = 0;
+        let step = 1;
+        // Try center first, then alternate above/below
+        while (true) {
+          const collides = placed.some(p => {
+            const dx = px - p.px;
+            const dy = offset - p.offset;
+            return Math.sqrt(dx * dx + dy * dy) < diameter;
+          });
+          if (!collides) break;
+          // Alternate: +1, -1, +2, -2, ...
+          offset = Math.ceil(step / 2) * diameter * (step % 2 === 1 ? -1 : 1);
+          step++;
+        }
+        placed.push({ px, offset });
+        const key = `${d.year}-${d.team}-${d.y}-${d.deltaker}`;
+        offsets.set(key, offset);
+      });
+    });
+    return offsets;
+  }, [visiblePoints, xScale]);
+
   return (
     <div className="app-layout">
       <Sidebar filters={filters} onFiltersChange={handleToggle} onSelectAll={handleSelectAll} onClearAll={handleClearAll} filteredCount={visiblePoints.length} totalCount={RaceData.length}
@@ -87,10 +124,12 @@ function App() {
 
       <div>
         <text style={{ alignContent: "left" }}>
-          <h1>Hvor fort har Riksrevisjonen løpt i Holmenkollstafetten siden 2017?</h1>
+          <h1>Hvem er raskest i Riksrevisjonen?</h1>
+          Denne siden inneholder Riksrevisjonens resultater fra Holmenkollstafetten siden 2017.
+          <br></br>
         </text>
 
-        <div style={{ marginBottom: 10, textAlign: 'center' }}>
+        <div style={{ marginBottom: 10, textAlign: 'center' , marginTop: 30}}>
           <label htmlFor="xvar-select" style={{ marginRight: 8 }}>Hva vil du sammenligne? </label>
           <select id="xvar-select" value={xVar} onChange={(e) => setXVar(e.target.value)}>
             {Object.entries(X_VARIABLES).map(([key, cfg]) => (
@@ -100,7 +139,7 @@ function App() {
         </div>
 
         <div className="range-slider-wrapper">
-          <label className="range-slider-label">Begrens aksen:</label>
+          <label className="range-slider-label">Endre ytterverdier:</label>
           <div className="range-slider-container">
             <span className="range-slider-value">{varConfig.tickFormat(xRange ? xRange[0] : dataExtent[0])}</span>
             <div className="range-slider-track">
@@ -212,12 +251,14 @@ function App() {
               <g clipPath="url(#chart-clip)">
               {[...visiblePoints].sort((a, b) => isHighlighted(a) - isHighlighted(b)).map((d, i) => {
                 const hl = isHighlighted(d);
+                const key = `${d.year}-${d.team}-${d.y}-${d.deltaker}`;
+                const dodge = dodgeOffsets.get(key) || 0;
                 return (
                 <circle
-                  key={`${d.year}-${d.team}-${d.y}-${d.deltaker}`}
+                  key={key}
                   cx={xScale(d.x)}
-                  cy={yScale(d.y) + yScale.bandwidth() / 2 + d.jitter}
-                  r={9}
+                  cy={yScale(d.y) + yScale.bandwidth() / 2 + dodge}
+                  r={DOT_RADIUS}
                   stroke={hl ? '#A40000' : '#cccccc'}
                   fill={hl ? '#a400006b' : '#cccccc'}
                   opacity={hl ? 1 : 0.5}
@@ -230,7 +271,7 @@ function App() {
             </g>
           </svg>
 
-          <Tooltip hovered={hovered} xScale={xScale} yScale={yScale} MARGIN={MARGIN} />
+          <Tooltip hovered={hovered} xScale={xScale} yScale={yScale} MARGIN={MARGIN} dodgeOffset={hovered ? (dodgeOffsets.get(`${hovered.year}-${hovered.team}-${hovered.y}-${hovered.deltaker}`) || 0) : 0} />
         </div>
       </div>
     </div>

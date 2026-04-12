@@ -1,6 +1,6 @@
 import styles from './tooltip.module.css';
 
-export function Tooltip({ hovered, xScale, yScale, MARGIN }) {
+export function Tooltip({ hovered, xScale, yScale, MARGIN, dodgeOffset = 0 }) {
   if (!hovered) return null;
 
   return (
@@ -8,7 +8,7 @@ export function Tooltip({ hovered, xScale, yScale, MARGIN }) {
       className={styles.tooltip}
       style={{
         left: xScale(hovered.x) + MARGIN.left + 10,
-        top: yScale(hovered.y) + yScale.bandwidth() / 2 + hovered.jitter + MARGIN.top,
+        top: yScale(hovered.y) + yScale.bandwidth() / 2 + dodgeOffset + MARGIN.top,
       }}
     >
       <div className={styles.title} style={{ fontWeight: "bold", color: "black" }}>{hovered.deltaker}</div>

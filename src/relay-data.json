@@ -1,0 +1,107 @@
+[
+  {
+    "etappe_nr": 1,
+    "etappe": "(1) St. Hanshaugen",
+    "distanse_meter": 1100,
+    "etappe_profil": "Kupert",
+    "etappe_rekord": "00:02:49"
+  },
+  {
+    "etappe_nr": 2,
+    "etappe": "(2) Norabakken",
+    "distanse_meter": 1070,
+    "etappe_profil": "Bratt stigning",
+    "etappe_rekord": "00:03:04"
+  },
+  {
+    "etappe_nr": 3,
+    "etappe": "(3) Blåsen",
+    "distanse_meter": 595,
+    "etappe_profil": "Flat",
+    "etappe_rekord": "00:01:15"
+  },
+  {
+    "etappe_nr": 4,
+    "etappe": "(4) Berg og dal",
+    "distanse_meter": 1920,
+    "etappe_profil": "Kupert",
+    "etappe_rekord": "00:05:03"
+  },
+  {
+    "etappe_nr": 5,
+    "etappe": "(5) Forskningsparken",
+    "distanse_meter": 1210,
+    "etappe_profil": "Kupert",
+    "etappe_rekord": "00:03:06"
+  },
+  {
+    "etappe_nr": 6,
+    "etappe": "(6) Lille Besserud",
+    "distanse_meter": 1250,
+    "etappe_profil": "Bratt stigning",
+    "etappe_rekord": "00:03:46"
+  },
+  {
+    "etappe_nr": 7,
+    "etappe": "(7) Besserud",
+    "distanse_meter": 1770,
+    "etappe_profil": "Bratt stigning",
+    "etappe_rekord": "00:05:26"
+  },
+  {
+    "etappe_nr": 8,
+    "etappe": "(8) Utforetappen",
+    "distanse_meter": 1780,
+    "etappe_profil": "Nedover",
+    "etappe_rekord": "00:04:03"
+  },
+  {
+    "etappe_nr": 9,
+    "etappe": "(9) Gressbanen",
+    "distanse_meter": 625,
+    "etappe_profil": "Nedover",
+    "etappe_rekord": "00:01:21"
+  },
+  {
+    "etappe_nr": 10,
+    "etappe": "(10) Den lange",
+    "distanse_meter": 2860,
+    "etappe_profil": "Nedover",
+    "etappe_rekord": "00:07:11"
+  },
+  {
+    "etappe_nr": 11,
+    "etappe": "(11) Frognerparken",
+    "distanse_meter": 1520,
+    "etappe_profil": "Kupert",
+    "etappe_rekord": "00:03:54"
+  },
+  {
+    "etappe_nr": 12,
+    "etappe": "(12) Dumpa",
+    "distanse_meter": 350,
+    "etappe_profil": "Flat",
+    "etappe_rekord": "00:00:44"
+  },
+  {
+    "etappe_nr": 13,
+    "etappe": "(13) Trappa",
+    "distanse_meter": 1080,
+    "etappe_profil": "Lett stigning",
+    "etappe_rekord": "00:02:39"
+  },
+  {
+    "etappe_nr": 14,
+    "etappe": "(14) Sjarmøren",
+    "distanse_meter": 710,
+    "etappe_profil": "Flat",
+    "etappe_rekord": "00:01:39"
+  },
+  {
+    "etappe_nr": 15,
+    "etappe": "(15) Bislett Stadion",
+    "distanse_meter": 535,
+    "etappe_profil": "Flat",
+    "etappe_rekord": "00:01:11"
+  }
+]

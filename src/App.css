@@ -302,7 +302,7 @@
     width: 240px;
     flex-shrink: 0;
     padding: 16px;
-    overflow-y: overlay;
+    /* overflow-y: overlay; */
     max-height: 100vh;
     position: relative;
     top: 250px;
