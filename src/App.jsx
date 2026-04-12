@@ -6,9 +6,12 @@ import { AxisBottom } from './AxisBottom';
 import { AxisTop } from './AxisTop';
 import { Sidebar, useFilters, useHighlights } from './Sidebar';
 import { Tooltip } from './Tooltip';
-import { MARGIN, WIDTH, BAND_HEIGHT, boundsWidth, X_VARIABLES } from './chartConfig';
+import { MARGIN, WIDTH, BAND_HEIGHT, boundsWidth, X_VARIABLES, parseTime } from './chartConfig';
+import RelayData from './relay-data.json';
 
 const yVar = 'etappe';
+
+const relayInfo = new Map(RelayData.map(d => [d.etappe, d]));
 
 function App() {
   const [xVar, setXVar] = useState('persentil_totalt');
@@ -43,8 +46,16 @@ function App() {
 
   const dataExtent = useMemo(() => {
     if (varConfig.domain !== 'auto') return varConfig.domain;
-    return d3.extent(points, (d) => d.x);
-  }, [varConfig, points]);
+    const extent = d3.extent(points, (d) => d.x);
+    if (xVar === 'etappetid') {
+      const minRecord = Math.min(...activeEtapper.map(e => {
+        const info = relayInfo.get(e);
+        return info ? parseTime(info.etappe_rekord) : Infinity;
+      }));
+      if (isFinite(minRecord)) extent[0] = Math.min(extent[0], minRecord);
+    }
+    return extent;
+  }, [varConfig, points, xVar, activeEtapper]);
 
   const fullExtent = useMemo(() => {
     const padding = (dataExtent[1] - dataExtent[0]) * 0.03;
@@ -78,7 +89,7 @@ function App() {
   );
 
   // Beeswarm dodge: compute y-offsets so dots don't overlap
-  const DOT_RADIUS = 4;
+  const DOT_RADIUS = 6;
   const dodgeOffsets = useMemo(() => {
     const offsets = new Map();
     const diameter = DOT_RADIUS * 2;
@@ -125,7 +136,8 @@ function App() {
       <div>
         <text style={{ alignContent: "left" }}>
           <h1>Hvem er raskest i Riksrevisjonen?</h1>
-          Denne siden inneholder Riksrevisjonens resultater fra Holmenkollstafetten siden 2017.
+          Denne siden inneholder Riksrevisjonens resultater fra Holmenkollstafetten fra 2017 til 2025. 
+          Du kan velge mellom 
           <br></br>
         </text>
 
@@ -232,20 +244,57 @@ function App() {
               </g>
 
               {/* Y axis labels */}
-              {activeEtapper.map((etappe) => (
-                <text
-                  key={etappe}
-                  x={-10}
-                  y={yScale(etappe) + yScale.bandwidth() / 2}
-                  textAnchor="end"
-                  dominantBaseline="central"
-                  fontSize={14}
-                  fill="currentColor"
-                  style={{ transition: 'y 0.4s ease' }}
-                >
-                  {etappe}
-                </text>
-              ))}
+              {activeEtapper.map((etappe) => {
+                const info = relayInfo.get(etappe);
+                return (
+                  <g key={etappe} style={{ transition: 'transform 0.4s ease' }} transform={`translate(0,${yScale(etappe) + yScale.bandwidth() / 2})`}>
+                    <text
+                      x={-10}
+                      textAnchor="end"
+                      dominantBaseline="central"
+                      fontSize={14}
+                      fill="currentColor"
+                    >
+                      {etappe}
+                    </text>
+                    {info && (
+                      <text
+                        x={-10}
+                        y={16}
+                        textAnchor="end"
+                        dominantBaseline="central"
+                        fontSize={11}
+                        fill="#999"
+                      >
+                        {info.distanse_meter} m · {info.etappe_profil}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+
+              {/* Etappe record markers (only for etappetid) */}
+              {xVar === 'etappetid' && activeEtapper.map((etappe) => {
+                const info = relayInfo.get(etappe);
+                if (!info) return null;
+                const recordSeconds = parseTime(info.etappe_rekord);
+                const cx = xScale(recordSeconds);
+                const cy = yScale(etappe) + yScale.bandwidth() / 2;
+                return (
+                  <circle
+                    key={`record-${etappe}`}
+                    cx={cx}
+                    cy={cy}
+                    r={DOT_RADIUS + 1}
+                    fill="#000"
+                    stroke="#fff"
+                    strokeWidth={1}
+                    style={{ cursor: 'default', transition: 'cy 0.4s ease' }}
+                    onMouseEnter={() => setHovered({ _isRecord: true, etappe, rekord: info.etappe_rekord, x: recordSeconds, y: etappe })}
+                    onMouseLeave={() => setHovered(null)}
+                  />
+                );
+              })}
 
               {/* Data points */}
               <g clipPath="url(#chart-clip)">

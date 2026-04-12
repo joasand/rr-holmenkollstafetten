@@ -128,7 +128,7 @@ export function useFilters() {
     { key: 'year', title: 'År', options: filterOptions.year, selected: selectedYears },
     { key: 'team', title: 'Lag', options: filterOptions.team, selected: selectedTeams },
     { key: 'etappe', title: 'Etappe', options: filterOptions.etappe, selected: selectedEtapper },
-    { key: 'loper_kjent', title: 'Kjent løper', options: filterOptions.loper_kjent, selected: selectedLoperKjent },
+    { key: 'loper_kjent', title: 'Navngitt løper', options: filterOptions.loper_kjent, selected: selectedLoperKjent },
   ];
 
   const filterData = (data) =>
@@ -186,7 +186,7 @@ export function useHighlights() {
   const highlights = [
     { key: 'year', title: 'År', options: highlightOptions.year, selected: hlYear },
     { key: 'team', title: 'Lag', options: highlightOptions.team, selected: hlTeam },
-    { key: 'loper_kjent', title: 'Kjent løper', options: highlightOptions.loper_kjent, selected: hlLoperKjent },
+    { key: 'loper_kjent', title: 'Navngitt løper', options: highlightOptions.loper_kjent, selected: hlLoperKjent },
   ];
 
   const deltaker = { options: allDeltaker, selected: hlDeltaker };

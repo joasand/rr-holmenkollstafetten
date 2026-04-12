@@ -141,8 +141,6 @@ etappe_data <- etappe_data |>
 
 #### EXPORTING DATA FOR APP ####
 
-glimpse(combined_data)
-
 combined_data |> 
   select(etappe_nr, 
          etappe,
@@ -161,9 +159,10 @@ combined_data |>
          etappe = str_remove_all(etappe, "\\d"),
          etappe = str_squish(etappe),
          etappe = paste0("(", etappe_nr, ") ", etappe),
-         loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja"),
-          
-         ) |> 
+         loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja")) |> 
+  group_by(etappe) |> 
+  mutate(plassering_rr = rank(etappe_hastighet,
+                              ties.method = "random")) |> 
   write_json("src/dev-data.json")
 
 

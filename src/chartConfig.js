@@ -1,6 +1,6 @@
 export const MARGIN = { top: 100, right: 50, bottom: 70, left: 180 };
 export const WIDTH = 1300;
-export const BAND_HEIGHT = 70;
+export const BAND_HEIGHT = 90;
 export const boundsWidth = WIDTH - MARGIN.left - MARGIN.right;
 
 export const parseTime = (t) => {
@@ -50,5 +50,11 @@ export const X_VARIABLES = {
     domain: 'auto',
     tickFormat: (v) => `${v}`,
     getValue: (d) => d.plassering_klasse,
+  },
+  plassering_rr: {
+    label: 'Plassering (blant RR-ansatte)',
+    domain: 'auto',
+    tickFormat: (v) => `${v}`,
+    getValue: (d) => d.plassering_rr,
   },
 };
