@@ -87,12 +87,15 @@ h2 {
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
+  text-align: start;
+  border-bottom: 1px solid var(--border);
   @media (max-width: 1024px) {
     font-size: 20px;
   }
 }
 p {
   margin: 0;
+  text-align: start;
 }
 
 code,

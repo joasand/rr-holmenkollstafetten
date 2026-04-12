@@ -193,16 +193,100 @@
   font-size: 15px;
 }
 
+.range-slider-wrapper {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.range-slider-label {
+  font-size: 14px;
+  margin-right: 8px;
+  color: #555;
+}
+
+.range-slider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.range-slider-value {
+  font-size: 13px;
+  min-width: 50px;
+  text-align: center;
+  color: #333;
+}
+
+.range-slider-track {
+  position: relative;
+  width: 300px;
+  height: 30px;
+}
+
+.range-slider-track input[type="range"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 30px;
+  margin: 0;
+}
+
+.range-slider-track input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #A40000;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.range-slider-track input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #A40000;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+
+.range-slider-track input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+}
+
+.range-slider-track input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+}
+
 #filter-button {
   background: white;
 }
 
 .app-layout {
   display: flex;
-  gap: 20px;
+  gap: 10px;
+  max-width: 1400px;
+  margin: 80px 250px 400px -200px;
+
 }
 
-.sidebar {
+/* .sidebar {
   width: 200px;
   flex-shrink: 0;
   padding: 16px;
@@ -211,11 +295,27 @@
   max-height: 100vh;
   position: sticky;
   top: 0;
+} */
+
+.sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    padding: 16px;
+    overflow-y: overlay;
+    max-height: 100vh;
+    position: relative;
+    top: 250px;
 }
 
 .sidebar h3 {
   margin: 0 0 12px;
   font-size: 18px;
+}
+
+.filter-count {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 12px;
 }
 
 .filter-group {

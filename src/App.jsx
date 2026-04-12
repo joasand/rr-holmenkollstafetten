@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import * as d3 from 'd3';
 import './App.css'
 import { RaceData } from './data-import';
@@ -39,19 +39,36 @@ function App() {
   }, [varConfig, filterData]);
 
   const [hovered, setHovered] = useState(null);
+  const [xRange, setXRange] = useState(null);
 
-  const xDomain = useMemo(() => {
+  const dataExtent = useMemo(() => {
     if (varConfig.domain !== 'auto') return varConfig.domain;
-    const extent = d3.extent(points, (d) => d.x);
-    const padding = (extent[1] - extent[0]) * 0.05;
-    return [extent[0] - padding, extent[1] + padding];
+    return d3.extent(points, (d) => d.x);
   }, [varConfig, points]);
+
+  const fullExtent = useMemo(() => {
+    const padding = (dataExtent[1] - dataExtent[0]) * 0.03;
+    return [dataExtent[0] - padding, dataExtent[1] + padding];
+  }, [dataExtent]);
+
+  // Reset slider when variable changes
+  useEffect(() => setXRange(null), [xVar]);
+
+  const xDomain = xRange ? (() => {
+    const padding = (xRange[1] - xRange[0]) * 0.03;
+    return [xRange[0] - padding, xRange[1] + padding];
+  })() : fullExtent;
+
+  const visiblePoints = useMemo(() => {
+    if (!xRange) return points;
+    return points.filter(d => d.x >= xRange[0] && d.x <= xRange[1]);
+  }, [points, xRange]);
 
   const boundsHeight = activeEtapper.length * BAND_HEIGHT;
   const chartHeight = boundsHeight + MARGIN.top + MARGIN.bottom;
 
   const xScale = useMemo(
-    () => d3.scaleLinear().domain(xDomain).range([0, boundsWidth]).nice(),
+    () => d3.scaleLinear().domain(xDomain).range([0, boundsWidth]),
     [xDomain]
   );
 
@@ -62,7 +79,7 @@ function App() {
 
   return (
     <div className="app-layout">
-      <Sidebar filters={filters} onFiltersChange={handleToggle} onSelectAll={handleSelectAll} onClearAll={handleClearAll} />
+      <Sidebar filters={filters} onFiltersChange={handleToggle} onSelectAll={handleSelectAll} onClearAll={handleClearAll} filteredCount={visiblePoints.length} totalCount={RaceData.length} />
 
       <div>
         <text style={{ alignContent: "left" }}>
@@ -78,9 +95,49 @@ function App() {
           </select>
         </div>
 
+        <div className="range-slider-wrapper">
+          <label className="range-slider-label">Begrens aksen:</label>
+          <div className="range-slider-container">
+            <span className="range-slider-value">{varConfig.tickFormat(xRange ? xRange[0] : dataExtent[0])}</span>
+            <div className="range-slider-track">
+              <input
+                type="range"
+                min={dataExtent[0]}
+                max={dataExtent[1]}
+                step={(dataExtent[1] - dataExtent[0]) / 200}
+                value={xRange ? xRange[0] : dataExtent[0]}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  const hi = xRange ? xRange[1] : dataExtent[1];
+                  setXRange([Math.min(v, hi), hi]);
+                }}
+              />
+              <input
+                type="range"
+                min={dataExtent[0]}
+                max={dataExtent[1]}
+                step={(dataExtent[1] - dataExtent[0]) / 200}
+                value={xRange ? xRange[1] : dataExtent[1]}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  const lo = xRange ? xRange[0] : dataExtent[0];
+                  setXRange([lo, Math.max(v, lo)]);
+                }}
+              />
+            </div>
+            <span className="range-slider-value">{varConfig.tickFormat(xRange ? xRange[1] : dataExtent[1])}</span>
+          </div>
+        </div>
+
         <div style={{ position: 'relative' }}>
           <svg width={WIDTH} height={chartHeight} style={{ transition: 'height 0.4s ease' }}>
             <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
+              <defs>
+                <clipPath id="chart-clip">
+                  <rect x={0} y={0} width={boundsWidth} height={boundsHeight} />
+                </clipPath>
+              </defs>
+
               {/* X axis top */}
               <g>
                 <AxisTop
@@ -148,20 +205,22 @@ function App() {
               ))}
 
               {/* Data points */}
-              {points.map((d, i) => (
+              <g clipPath="url(#chart-clip)">
+              {visiblePoints.map((d, i) => (
                 <circle
                   key={`${d.year}-${d.team}-${d.y}-${d.deltaker}`}
                   cx={xScale(d.x)}
                   cy={yScale(d.y) + yScale.bandwidth() / 2 + d.jitter}
-                  r={6}
-                  stroke='#40665d'
-                  fill="#69b3a2"
-                  opacity={0.7}
+                  r={9}
+                  stroke='#A40000'
+                  fill="#a400006b"
+                  opacity={1}
                   onMouseEnter={() => setHovered(d)}
                   onMouseLeave={() => setHovered(null)}
                   style={{ cursor: 'pointer', transition: 'cy 0.4s ease' }}
                 />
               ))}
+              </g>
             </g>
           </svg>
 

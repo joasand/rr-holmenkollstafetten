@@ -5,10 +5,11 @@ import { FilterGroup } from './FilterGroup';
 const yVar = 'etappe';
 const sortVar = 'etappe_nr';
 
-export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll }) {
+export function Sidebar({ filters, onFiltersChange, onSelectAll, onClearAll, filteredCount, totalCount }) {
   return (
     <aside className="sidebar">
       <h2>Filter</h2>
+      <p className="filter-count">Viser {filteredCount} av {totalCount} løpstider</p>
       {filters.map(({ key, title, options, selected }) => (
         <FilterGroup
           key={key}
