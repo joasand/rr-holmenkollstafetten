@@ -140,7 +140,8 @@ function App() {
         <text style={{ alignContent: "left", maxWidth: 800, display: 'block', margin: '0 auto' }}>
           <h1>Hvem er raskest i Riksrevisjonen?</h1>
           Denne siden inneholder Riksrevisjonens resultater fra Holmenkollstafetten fra 2017 til 2025. 
-          Hver prikk i diagrammet under representerer en etappetid for en deltaker. 
+          Hver prikk (<svg width={14} height={14} style={{ verticalAlign: 'middle', display: 'inline-block' }}><circle cx={7} cy={7} r={6} fill="#a400006b" stroke="#A40000" /></svg>)
+          i diagrammet under representerer en etappetid for en deltaker. 
           Hver rad representerer en etappe, og du kan se hvordan tidene har utviklet seg over årene.
           <br></br>
           <br></br>
@@ -148,8 +149,8 @@ function App() {
           du kan bruke filtrene i menyen til venstre for å utforske dataene. Du kan også holde musepekeren over en prikk for å se detaljer om den deltakeren og etappen.
           <br></br>
           <br></br>
-          Obs: Foreløpig er det bare lagt inn navn for 2025. Vi jobber med å få inn navn for tidligere år også. 
-          Hvis du har informasjon om hvem som løp hvilke etapper i tidligere år, ta gjerne kontakt!
+          Obs: Foreløpig er det bare lagt inn navn for 2025. Kun løpere som er blant de 30 prosent 
+          raskeste i sin klasse er navngitt for dette året, resten er anonyme.
         </text>
 
         <div className="xvar-cards">

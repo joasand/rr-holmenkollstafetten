@@ -12,7 +12,7 @@ export function Tooltip({ hovered, xScale, yScale, MARGIN, dodgeOffset = 0 }) {
           top: yScale(hovered.y) + yScale.bandwidth() / 2 + MARGIN.top,
         }}
       >
-        <div className={styles.title} style={{ fontWeight: "bold", color: "black" }}>Etapperekord</div>
+        <div className={styles.title} style={{ fontWeight: "bold", color: "black" }}>Etapperekord (nasjonalt)</div>
         <div className={styles.row}><span>Tid</span><span>{hovered.rekord}</span></div>
       </div>
     );

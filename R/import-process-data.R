@@ -159,11 +159,24 @@ combined_data |>
          etappe = str_remove_all(etappe, "\\d"),
          etappe = str_squish(etappe),
          etappe = paste0("(", etappe_nr, ") ", etappe),
+         etappe_deltaker = if_else(persentil_klasse >= 30, "Ukjent løper", etappe_deltaker),
          loper_kjent = if_else(etappe_deltaker == "Ukjent løper", "Nei", "Ja"),
          team = if_else(team == "Lag 1", "Førstelaget", "Andrelaget")) |> 
   group_by(etappe) |> 
   mutate(plassering_rr = rank(etappe_hastighet,
                               ties.method = "random")) |> 
   write_json("src/dev-data.json")
+
+
+
+library(writexl)
+combined_data |> 
+  filter(etappe_deltaker == "Ukjent løper",
+         persentil_klasse <= 30) |> 
+  select(etappe, etappe_deltaker, year, team, etappetid, 
+         etappe_hastighet, plassering_totalt,
+         persentil_klasse) |> 
+  arrange(persentil_klasse) |> 
+  write_xlsx("data/til-gjennomgang.xlsx")
 
 
